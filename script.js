@@ -1,9 +1,9 @@
 const SENHA_CORRETA = "LAB123"; // DEFINA SUA SENHA AQUI
 const URL_API = "https://script.google.com/macros/s/AKfycbxbLYAFBdVjsyz3P7rQA5WF610FxjWC68ZD-xY9zzBKNgJ98qyBF_iGZD5C2mgJ0rWa/exec";
+
 const corpoAgenda = document.getElementById('corpo-agenda');
 const seletorData = document.getElementById('data');
 const seletorMaquina = document.getElementById('maquina');
-
 let reservasGlobais = {};
 
 async function carregarReservas() {
@@ -13,7 +13,7 @@ async function carregarReservas() {
         reservasGlobais = await response.json();
         atualizarAgenda();
     } catch (e) {
-        corpoAgenda.innerHTML = '<tr><td colspan="3">Erro ao carregar dados. Verifique a URL da API.</td></tr>';
+        corpoAgenda.innerHTML = '<tr><td colspan="3">Erro ao carregar dados.</td></tr>';
     }
 }
 
@@ -31,12 +31,12 @@ function atualizarAgenda() {
         tr.innerHTML = `
             <td>${horarioFormatado}</td>
             <td class="${nomeReserva ? 'ocupado' : 'disponivel'}">
-                ${nomeReserva ? `Ocupado: ${nomeReserva}` : 'Livre'}
+                ${nomeReserva ? `Reservado por: ${nomeReserva}` : 'Disponível'}
             </td>
             <td>
                 ${nomeReserva 
-                    ? `<button onclick="acao('cancelar', '${chaveReserva}')">Cancelar</button>` 
-                    : `<button onclick="acao('reservar', '${chaveReserva}')">Reservar</button>`
+                    ? '---' 
+                    : `<input type="checkbox" class="chk-reserva" value="${chaveReserva}">`
                 }
             </td>
         `;
@@ -44,55 +44,55 @@ function atualizarAgenda() {
     }
 }
 
-async function acao(tipo, chave) {
+async function reservarSelecionados() {
     const nome = document.getElementById('nome').value;
-    const matricula = document.getElementById('email').value;
+    const email = document.getElementById('email').value;
     const orientador = document.getElementById('orientador').value;
-    const senhaInformada = document.getElementById('senha-lab').value;
-    const dataSelecionada = seletorData.value;
-    const maquinaSelecionada = seletorMaquina.options[seletorMaquina.selectedIndex].text;
+    const senha = document.getElementById('senha-lab').value;
+    const dataTxt = seletorData.value;
+    const maquinaTxt = seletorMaquina.options[seletorMaquina.selectedIndex].text;
 
-    if (senhaInformada !== SENHA_CORRETA) {
-        alert("Senha do laboratório incorreta!");
-        return;
-    }
+    // Validações
+    if (senha !== SENHA_CORRETA) return alert("Senha incorreta!");
+    if (!nome || !email || !orientador) return alert("Preencha todos os seus dados!");
 
-    if (tipo === 'reservar') {
-        if (!nome || !matricula || !orientador) {
-            alert("Preencha todos os campos antes de reservar.");
-            return;
+    const selecionados = document.querySelectorAll('.chk-reserva:checked');
+    if (selecionados.length === 0) return alert("Selecione pelo menos um horário!");
+
+    if (!confirm(`Deseja confirmar ${selecionados.length} reserva(s)?`)) return;
+
+    // Desativa o botão para evitar cliques duplos
+    const btn = document.getElementById('btn-confirmar');
+    btn.disabled = true;
+    btn.innerText = "Processando...";
+
+    // Envia cada reserva para a planilha
+    for (let chk of selecionados) {
+        try {
+            await fetch(URL_API, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: 'reservar', 
+                    chave: chk.value, 
+                    nome: nome,
+                    email: email,
+                    orientador: orientador,
+                    dataAgendamento: dataTxt,
+                    maquina: maquinaTxt
+                })
+            });
+        } catch (e) {
+            console.error("Erro ao reservar bloco: " + chk.value);
         }
     }
 
-    if (tipo === 'cancelar' && !confirm("Deseja cancelar?")) return;
-
-    corpoAgenda.style.opacity = "0.5";
-
-    try {
-        await fetch(URL_API, {
-            method: 'POST',
-            body: JSON.stringify({ 
-                action: tipo, 
-                chave: chave, 
-                nome: nome,
-                matricula: email,
-                orientador: orientador,
-                dataAgendamento: dataSelecionada, // Novo dado
-                maquina: maquinaSelecionada       // Novo dado
-            })
-        });
-
-        document.getElementById('senha-lab').value = ""; 
-        await carregarReservas();
-    } catch (error) {
-        alert("Erro na conexão.");
-    } finally {
-        corpoAgenda.style.opacity = "1";
-    }
+    alert("Reservas concluídas!");
+    document.getElementById('senha-lab').value = "";
+    btn.disabled = false;
+    btn.innerText = "Confirmar Reservas Selecionadas";
+    carregarReservas();
 }
 
 seletorData.addEventListener('change', atualizarAgenda);
 seletorMaquina.addEventListener('change', atualizarAgenda);
-
-// Inicia buscando os dados da planilha
 carregarReservas();
