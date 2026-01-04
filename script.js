@@ -45,40 +45,57 @@ function atualizarAgenda() {
 }
 
 async function acao(tipo, chave) {
-    const senhaInformada = document.getElementById('senha-lab').value;
+    // Captura os valores dos campos da página
+    const nome = document.getElementById('nome').value;
     const matricula = document.getElementById('matricula').value;
     const orientador = document.getElementById('orientador').value;
+    const senhaInformada = document.getElementById('senha-lab').value;
 
+    // 1. Validação de Senha (para qualquer ação)
     if (senhaInformada !== SENHA_CORRETA) {
         alert("Senha do laboratório incorreta!");
         return;
     }
 
-    let nome = "";
+    // 2. Validação de campos vazios (apenas para reserva)
     if (tipo === 'reservar') {
-        nome = prompt("Seu nome completo:");
         if (!nome || !matricula || !orientador) {
-            alert("Por favor, preencha Nome, Matrícula e Orientador.");
+            alert("Por favor, preencha todos os campos (Nome, Matrícula e Orientador) antes de reservar.");
             return;
         }
     }
 
-    if (tipo === 'cancelar' && !confirm("Deseja realmente cancelar?")) return;
+    // 3. Confirmação de cancelamento
+    if (tipo === 'cancelar') {
+        if (!confirm("Deseja realmente cancelar esta reserva?")) return;
+    }
 
-    // Enviamos agora um objeto mais completo para a planilha
-    await fetch(URL_API, {
-        method: 'POST',
-        body: JSON.stringify({ 
-            action: tipo, 
-            chave: chave, 
-            nome: nome,
-            matricula: matricula,
-            orientador: orientador
-        })
-    });
+    // Exibe um feedback visual simples de carregamento
+    corpoAgenda.style.opacity = "0.5";
 
-    document.getElementById('senha-lab').value = ""; // Limpa a senha por segurança
-    carregarReservas();
+    // 4. Envio para o Google Sheets
+    try {
+        await fetch(URL_API, {
+            method: 'POST',
+            body: JSON.stringify({ 
+                action: tipo, 
+                chave: chave, 
+                nome: nome,
+                matricula: matricula,
+                orientador: orientador
+            })
+        });
+
+        // Limpa a senha para segurança, mas mantém os dados do aluno para facilitar se ele quiser reservar mais blocos
+        document.getElementById('senha-lab').value = ""; 
+        
+        // Recarrega os dados da planilha
+        await carregarReservas();
+    } catch (error) {
+        alert("Erro ao processar a solicitação. Tente novamente.");
+    } finally {
+        corpoAgenda.style.opacity = "1";
+    }
 }
 
 seletorData.addEventListener('change', atualizarAgenda);

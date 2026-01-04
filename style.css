@@ -24,6 +24,11 @@ header { text-align: center; margin-bottom: 30px; }
     justify-content: center;
 }
 
+.linha-seguranca input {
+    flex: 1; /* Faz os campos crescerem proporcionalmente */
+    min-width: 150px; /* Evita que fiquem muito pequenos */
+}
+
 input, select {
     padding: 8px;
     border: 1px solid #ccc;
