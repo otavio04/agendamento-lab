@@ -9,8 +9,8 @@
 <body>
 
     <header>
-        <h1>Agendamento de Laboratório</h1>
-        <p>Selecione uma máquina e reserve seus blocos de pesquisa.</p>
+        <h1>Sistema de agendamento do GrID</h1>
+        <p>Selecione uma opção e reserve um horário.</p>
     </header>
 
     <main>
@@ -19,7 +19,7 @@
                 <label for="data">Data:</label>
                 <input type="date" id="data" value="2026-01-05">
 
-                <label for="maquina">Computador:</label>
+                <label for="maquina">Opções:</label>
                 <select id="maquina">
                     <option value="1">Computador 01 - Alto desempenho</option>
                     <option value="2">Computador 02 - Alto desempenho</option>
@@ -38,10 +38,16 @@
             </div>
 
             <div class="area-confirmacao">
-                <input type="password" id="senha-lab" placeholder="Senha do Lab">
-                <button id="btn-confirmar" onclick="reservarSelecionados()">
-                    Confirmar Reservas Selecionadas
-                </button>
+                <div class="bloco-acao">
+                    <input type="password" id="senha-lab" placeholder="Senha do Lab">
+                    <button id="btn-confirmar" onclick="reservarSelecionados()">
+                        Confirmar Reservas Selecionadas
+                    </button>
+                    <p class="aviso-cancelamento">
+                        Solicitação de <strong>CANCELAMENTO</strong> apenas via e-mail: 
+                        <a href="mailto:grid@det.ufc.br">grid@det.ufc.br</a>
+                    </p>
+                </div>
             </div>
         </section>
 

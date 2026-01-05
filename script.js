@@ -1,4 +1,4 @@
-const SENHA_CORRETA = "LAB123"; // DEFINA SUA SENHA AQUI
+const SENHA_CORRETA = "Gr!D"; // DEFINA SUA SENHA AQUI
 const URL_API = "https://script.google.com/macros/s/AKfycbxbLYAFBdVjsyz3P7rQA5WF610FxjWC68ZD-xY9zzBKNgJ98qyBF_iGZD5C2mgJ0rWa/exec";
 
 const corpoAgenda = document.getElementById('corpo-agenda');
