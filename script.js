@@ -6,6 +6,20 @@ const seletorData = document.getElementById('data');
 const seletorMaquina = document.getElementById('maquina');
 let reservasGlobais = {};
 
+// Função para definir a data de hoje no seletor
+function configurarDataAtual() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, '0'); // Janeiro é 0
+    const dia = String(hoje.getDate()).padStart(2, '0');
+    
+    const dataFormatada = `${ano}-${mes}-${dia}`;
+    document.getElementById('data').value = dataFormatada;
+}
+
+// Chame a função imediatamente
+configurarDataAtual();
+
 async function carregarReservas() {
     corpoAgenda.innerHTML = '<tr><td colspan="3">Carregando horários...</td></tr>';
     try {
